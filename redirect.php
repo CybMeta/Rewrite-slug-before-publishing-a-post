@@ -14,19 +14,28 @@ add_action( 'save_post', 'rewrite_post_name' );
 
 function rewrite_post_name( $post_id ) {
 
-    // verify post is not a revision
-    if ( ! wp_is_post_revision( $post_id ) ) {
-
+   // verify post is not a revision
+   if ( ! wp_is_post_revision( $post_id ) ) {
+       
+        // unhook this function to prevent infinite looping
+        remove_action( 'save_post', 'rewrite_post_name' );
+        
         $post_name = get_post_field ( $post_id, 'post_name', 'raw' );
+        
         // If post_name start with post_id
         if( $post_name == substr( $post_name, 0, strlen( $post_id ) ) ) {
+           
             // update the post slug
             wp_update_post( array(
                 'ID' => $post_id,
                 'post_name' => '' // Rewrite based on Post Title
             ));
+            
         }
+        
+        // re-hook this function
+        add_action( 'save_post', 'rewrite_post_name' );  
 
-    }
+   }
 }
 ?>
