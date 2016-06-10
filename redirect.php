@@ -9,33 +9,20 @@
    License: GPL2
    */
 
-// initial hook
-add_action( 'save_post', 'rewrite_post_name' );
-
-function rewrite_post_name( $post_id ) {
-
-   // verify post is not a revision
-   if ( ! wp_is_post_revision( $post_id ) ) {
-       
-        // unhook this function to prevent infinite looping
-        remove_action( 'save_post', 'rewrite_post_name' );
-        
-        $post_name = get_post_field ( $post_id, 'post_name', 'raw' );
-        
-        // If post_name start with post_id
-        if( $post_name == substr( $post_name, 0, strlen( $post_id ) ) ) {
-           
-            // update the post slug
-            wp_update_post( array(
-                'ID' => $post_id,
-                'post_name' => '' // Rewrite based on Post Title
-            ));
-            
-        }
-        
-        // re-hook this function
-        add_action( 'save_post', 'rewrite_post_name' );  
-
-   }
+add_filter( 'wp_insert_post_data', 'rewrite_post_name', 10, 2 );
+function rewrite_post_name( $data, $postarr ) {
+   
+   if( ! empty( $postarr['ID'] )
+       && ! empty( $postarr['post_title'] )
+	    && $postarr['post_type'] != 'revision'
+	) {
+         // If post_name starts with post_id
+         if( $postarr['post_name'] == substr( $postarr['post_name'], 0, strlen( $postarr['ID'] ) ) ) {
+            // Create post_name from post_title
+            $data['post_name'] = sanitize_title( $postarr['post_title'] );
+         }
+	}
+	
+	return $data;
+	
 }
-?>
