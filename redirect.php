@@ -12,14 +12,18 @@
 add_filter( 'wp_insert_post_data', 'rewrite_post_name', 10, 2 );
 function rewrite_post_name( $data, $postarr ) {
    
-   if( ! empty( $postarr['ID'] )
-       && ! empty( $postarr['post_title'] )
-	    && $postarr['post_type'] != 'revision'
-	) {
+   // Only when post status is publish, future, private,
+   // post title is not empty and post type is not revision
+   // $data['ID'] is empty for new posts
+   if( ! empty( $data['ID'] )
+       && ! in_array( $data['post_status'], array( 'draft', 'pending', 'auto-draft' ) )
+       && ! empty( $data['post_title'] )
+       && $data['post_type'] != 'revision'
+    ) {
          // If post_name starts with post_id
-         if( $postarr['post_name'] == substr( $postarr['post_name'], 0, strlen( $postarr['ID'] ) ) ) {
+         if( $data['post_name'] == substr( $postarr['post_name'], 0, strlen( $data['ID'] ) ) ) {
             // Create post_name from post_title
-            $data['post_name'] = sanitize_title( $postarr['post_title'] );
+            $data['post_name'] = sanitize_title( $data['post_title'] );
          }
 	}
 	
