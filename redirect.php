@@ -20,13 +20,13 @@ function rewrite_post_name( $data, $postarr ) {
        && ! empty( $data['post_title'] )
        && $data['post_type'] != 'revision'
     ) {
-         // If post_name starts with post_id
-         if( $data['post_name'] == substr( $postarr['post_name'], 0, strlen( $data['ID'] ) ) ) {
+        // If post_name starts with post_id
+        if( $data['post_name'] == substr( $postarr['post_name'], 0, strlen( $data['ID'] ) ) ) {
             // Create post_name from post_title
             $data['post_name'] = sanitize_title( $data['post_title'] );
-         }
-	}
+        }
+    }
 	
-	return $data;
+    return $data;
 	
 }
